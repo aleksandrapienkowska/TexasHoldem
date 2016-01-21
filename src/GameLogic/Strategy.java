@@ -1268,7 +1268,7 @@ public class Strategy {
 
 	}
 
-	/*public static void main(String args[]) {
+	public static void main(String args[]) {
 		
 		 int players=7;
 		 
@@ -1333,6 +1333,6 @@ public class Strategy {
 			System.out.print(winner[a]+"  ");
 		}
 
-	}*/
+	}
 
 }
