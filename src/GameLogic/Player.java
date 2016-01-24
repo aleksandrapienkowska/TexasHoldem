@@ -2,10 +2,10 @@ package GameLogic;
 
 public class Player {
 
-	public int cash;
+	public int cash;//
 	public boolean active;
 	public int round_bet;
-	public int[] hand=new int[2];
+	public int[] hand=new int[2];//
 	public boolean lost;
 	public boolean big_blind;
 	public boolean small_blind;
@@ -13,39 +13,51 @@ public class Player {
 	public boolean leader;
 	public boolean fold;
 	public int bet;
-	public int points;
 	public int id;
 
-	Player(){
+	Player(int id){
+		this.active=true;
+		this.id=id;
+		this.round_bet=0;
+		this.lost=false;
+		this.big_blind=false;
+		this.small_blind=false;
+		this.all_in=false;
+		this.leader=false;
+		this.fold=false;
+		this.bet=0;
 		
 	}
-	public Cards[] getHand() {
-		// TODO Auto-generated method stub
-		return null;
+	public int[] getHand() {
+		return hand;
 	}
-
+	public void setBet(int bet) {
+		this.bet=bet;
+		
+	}
 	public void setCash(int initial_cash) {
-		// TODO Auto-generated method stub
+		this.cash=initial_cash;
 		
 	}
 
-	public void setHand(Object startingHand) {
-		// TODO Auto-generated method stub
+	public void setHand(int[] startingHand) {
+		this.hand=startingHand;
 		
 	}
 
 	public boolean checkActive() {
-		// TODO Auto-generated method stub
-		return false;
+		return active;
 	}
 
 	public int getCash() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return cash;
 	}
 
 	public void bet(int what) {
-		// TODO Auto-generated method stub
+		bet+=what;
+		cash=cash-what;
+		round_bet+=what;
 		
 	}
 

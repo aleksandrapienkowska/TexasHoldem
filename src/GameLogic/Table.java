@@ -23,10 +23,10 @@ public class Table {
 				initial_cash,
 				best_result,
 				dealer,
-				active_players,
-				round,
-				max_bet,
-				pot;
+				active_players;
+	public int round;
+	int max_bet;
+	int pot=0;
 	int[]		ttab;
 	public int	current;
 	String response;
@@ -34,23 +34,24 @@ public class Table {
 	private boolean new_game;
 	private int[][] results;
 	
-	public Table(int maxClientsCount, int cash, int small_blind, int big_blind,int max_bet) {
+	public Table(int maxClientsCount, int cash, int small_blind, int big_blind) {
 		gracze=new Player[maxClientsCount];
 		this.small_blind=small_blind;
 		this.big_blind=big_blind;
 		this.initial_cash=cash;
-		this.max_bet=max_bet;
+		this.max_bet=0;
 		talia=new Deck();
 		los=new Random();
 		response="";
 		round=1;
 		pot=0;
 		active_players=maxClientsCount;
-		dealer=los.nextInt();
+		dealer=los.nextInt()%maxClientsCount;
 		for(int x=0;x<gracze.length;x++){
-			gracze[x]=new Player();
+			gracze[x]=new Player(x);
 			gracze[x].setCash(initial_cash);
 			gracze[x].setHand(startingHand());
+			gracze[x].setBet(0);
 		}
 		response+=("|Rozpoczyna sie nowa partia...|");
 		betBlind(dealer+1,small_blind);
@@ -96,7 +97,7 @@ public class Table {
 		else
 		{
 			gracze[who].bet(what);
-			pot+=what;
+			pot=pot+what;
 			if(what==big_blind)
 			{
 				max_bet=big_blind;
@@ -125,7 +126,8 @@ public class Table {
 				gracze[who].active=false;
 			}
 			gracze[who].bet(amount);
-			pot+=amount;
+			pot=pot+amount;
+			
 			response+=("Gracz "+who+" stawia "+amount+", lacznie: "+gracze[who].bet+"|");
 			if(gracze[who].round_bet>max_bet)
 			{
@@ -169,31 +171,36 @@ public class Table {
 		return try_id;
 	}
 	private boolean checkIfEnd()
-	{// do poprawy
+	{
+		boolean ret=true;
 		temp=nextPlayer(current+1); // (gracze[temp].big_blind==false || round>1))
-		if(gracze[temp].leader==true ||  active_players==1) 
-		//|| (gracze[current].big_blind==true && round==1 && max_bet==big_blind)))
-		{
-			return true;
+		for(int i=0;i<gracze.length;i++){
+			temp=nextPlayer(temp+1);
+			if(gracze[temp].round_bet==gracze[nextPlayer(temp)].round_bet  ) {
+				return true;
+			}
+			else return false;
 		}
-		else
-		{
-			return false;
-		}
+		return ret;
 	}
 	private void newRound()
 	{
 		round++;
 		if(round==2){
 			common[0]=Cards.values()[talia.takeCard()];
+			response="setc"+common[0].toString();
 			common[1]=Cards.values()[talia.takeCard()];
+			response+="setc"+common[1].toString();
 			common[2]=Cards.values()[talia.takeCard()];
+			response+="setc"+common[2].toString()+"setc";
 			current=small_blind;nextPlayer(dealer+1);
 		}else if(round==3){
 			common[3]=Cards.values()[talia.takeCard()];
+			response="setc"+common[3].toString()+"setc";
 			current=small_blind;nextPlayer(dealer+1);
 		}else if(round==4){
 			common[4]=Cards.values()[talia.takeCard()];
+			response="setc"+common[4].toString()+"setc";
 			current=small_blind;nextPlayer(dealer+1);
 		}else
 		if(round==5)
@@ -243,7 +250,7 @@ public class Table {
 			gracze[i].big_blind=false;
 			gracze[i].bet=0;
 			gracze[i].round_bet=0;
-			gracze[i].points=0;
+
 		}
 		response+=("|Rozpoczyna sie nowa partia...|");
 		max_bet=0;
@@ -315,7 +322,7 @@ public class Table {
 			{
 				
 					gracze[i].cash+=pot/n;
-					response+=("Gracz "+i+" wypłaca "+pot+"|");
+					response+=("Gracz "+i+" wypłaca "+pot/n+"|");
 					
 			}
 		}
@@ -333,7 +340,7 @@ public class Table {
 		return ttab;
 	}
 
-	public Cards[] getHand(int player_id)
+	public int[] getHand(int player_id)
 	{
 		return gracze[player_id].getHand();
 	}
@@ -395,22 +402,23 @@ public class Table {
 		return alive;
 	}
 
-	public Object[] listen(Integer[] input) {
-		// TODO Auto-generated method stub
+	public void listen(Integer[] output) {
+		System.out.println(output[0]);
+		System.out.println(output[1]);
 		response="";
-		if((Integer)input[1]==1)
+		if((Integer)output[1]==1)
 		{
 			// ### AKCJA BANKOWA ###
-			switch((int)input[2])
+			switch((int)output[2])
 			{
-				case 1:	check((int)input[0]);break;
-				case 2: bet((int)input[0],(int)input[3]);break;
-				case 3: fold((int)input[0]);break;
-				case 4: quit((int)input[0]);break;
+				case 1:	check((int)output[0]);break;
+				case 2: bet((int)output[0],(int)output[3]);break;
+				case 3: fold((int)output[0]);break;
+				case 4: quit((int)output[0]);break;
 			}
 			
 		}		
-		if((int)input[1]==1 && checkIfEnd()) {
+		if((int)output[1]==1 && checkIfEnd()) {
 			if(active_players == 1) 
 			{
 				endgame();
@@ -426,7 +434,7 @@ public class Table {
 			response += ("Akcja gracza " + current + "|");
 		}
 		new_game=false;
-		return null;
+		
 	}
 
 	
