@@ -22,8 +22,8 @@ public class Table {
 				big_blind,
 				initial_cash,
 				best_result,
-				dealer,
-				active_players;
+				dealer;
+	public int active_players;
 	public int round;
 	int max_bet;
 	int pot=0;
@@ -32,7 +32,7 @@ public class Table {
 	String response;
 	private boolean alive;
 	private boolean new_game;
-	private int[][] results;
+	
 	
 	public Table(int maxClientsCount, int cash, int small_blind, int big_blind) {
 		gracze=new Player[maxClientsCount];
@@ -80,7 +80,8 @@ public class Table {
 		}
 		if(!gracze[who].checkActive())
 		{
-			betBlind(++who,what);
+			who=nextPlayer(who+1);
+			betBlind(who,what);
 			return;
 		}
 		if(gracze[who].getCash()<what)
@@ -92,7 +93,8 @@ public class Table {
 				talia.dumpCard(gracze[who].hand[i]);
 			}
 			active_players--;
-			betBlind(++who,what);
+			who=nextPlayer(who+1);
+			betBlind(who,what);
 		}
 		else
 		{
@@ -124,7 +126,9 @@ public class Table {
 			{
 				gracze[who].all_in=true;
 				gracze[who].active=false;
+				
 			}
+			
 			gracze[who].bet(amount);
 			pot=pot+amount;
 			
@@ -172,14 +176,18 @@ public class Table {
 	}
 	private boolean checkIfEnd()
 	{
-		boolean ret=true;
-		temp=nextPlayer(current+1); // (gracze[temp].big_blind==false || round>1))
+		boolean ret=false;
+		temp=current; // (gracze[temp].big_blind==false || round>1))
+		if(active_players>1){
 		for(int i=0;i<gracze.length;i++){
-			temp=nextPlayer(temp+1);
-			if(gracze[temp].round_bet==gracze[nextPlayer(temp)].round_bet  ) {
-				return true;
+			
+			if(gracze[temp].round_bet==gracze[nextPlayer(temp+1)].round_bet  ) {
+				ret=true;
+				temp=nextPlayer(temp+1);
 			}
 			else return false;
+		}}else{
+			return true;
 		}
 		return ret;
 	}
@@ -209,6 +217,7 @@ public class Table {
 			endgame();
 			return;
 		}
+		
 		response+=("|Rozpoczyna sie "+round+" tura...|");
 		max_bet=0;
 		for(Player p : gracze)
@@ -288,6 +297,7 @@ public class Table {
 			}
 			showdown(ttab);
 		}
+		if(active_players>1)
 		newGame();
 		
 	}
@@ -301,11 +311,11 @@ public class Table {
 		krupier=new Strategy(who.length,pCards,common);
 		int[][] best = krupier.BestHands();
 		response+=("Showdown!|");
-		results=new int[who.length][];
+		
 		for(int i=0;i<who.length;i++)
 		{
-			results[i]=best[i];
-			response+=("Gracz "+who[i]+" ma "+Cards.values()[results[i][1]]+" "+Cards.values()[results[i][2]]+" "+Cards.values()[results[i][3]]+" "+Cards.values()[results[i][4]]+" "+Cards.values()[results[i][5]]+"|");
+			
+			response+=("Gracz "+who[i]+" ma "+Cards.values()[best[i][1]]+" "+Cards.values()[best[i][2]]+" "+Cards.values()[best[i][3]]+" "+Cards.values()[best[i][4]]+" "+Cards.values()[best[i][5]]+"|");
 			
 		}
 		int winner[]=krupier.Winner(best, common, pCards);
@@ -316,7 +326,8 @@ public class Table {
 
 	private void payment(int[] winner) {
 		int n=winner[winner.length-1];
-		for(int i=0;i<=n;i++)
+		
+		for(int i=0;i<n;i++)
 		{
 			if(gracze[i].id==i)
 			{
@@ -403,16 +414,24 @@ public class Table {
 	}
 
 	public void listen(Integer[] output) {
-		System.out.println(output[0]);
-		System.out.println(output[1]);
+		System.out.println("Odebrano polecenie od serwera");
+		for(int k=0;k<output.length;k++)
+			System.out.println(k+" "+output[k]);
 		response="";
-		if((Integer)output[1]==1)
+		if(output[1]==1)
 		{
 			// ### AKCJA BANKOWA ###
 			switch((int)output[2])
 			{
 				case 1:	check((int)output[0]);break;
-				case 2: bet((int)output[0],(int)output[3]);break;
+				case 2:{ 
+					bet((int)output[0],(int)output[3]);
+					if(active_players == 1) 
+					{
+						newRound();
+					}
+					break;
+				}
 				case 3: fold((int)output[0]);break;
 				case 4: quit((int)output[0]);break;
 			}

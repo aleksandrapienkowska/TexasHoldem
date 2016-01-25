@@ -293,30 +293,30 @@ public class ClientFrame {
 				text = in.readLine();
 				int l = 0;
 				int k = 0;
-				while (text.startsWith("setBill")) {
+				if(text.startsWith("setBill")) {
 					BalanceAmount.setText(text.replace("setBill", ""));
 					text = in.readLine();
 					bill = Integer.parseInt(BalanceAmount.getText());
 
 				}
 
-				while (text.startsWith("setPot")) {
+				if(text.startsWith("setPot")) {
 					TotalAmount.setText(text.replace("setPot", ""));
 					text = in.readLine();
 
 				}
-				while (text.startsWith("setMaxBet")) {
+				if(text.startsWith("setMaxBet")) {
 					MaxBetAmount.setText(text.replace("setMaxBet", ""));
 					maxbet = Integer.parseInt(MaxBetAmount.getText());
 					text = in.readLine();
 
 				}
-				while (text.startsWith("setTitle")) {
+				if(text.startsWith("setTitle")) {
 					window.setTitle("Badugi" + text.replace("setTitle", ""));
 					text = in.readLine();
 
 				}
-				while (text.startsWith("setBetsAmount")) {
+				while(text.startsWith("setBetsAmount")) {
 					l++;
 					if (l == 1)
 						BetsAmount.setText("");
@@ -328,7 +328,7 @@ public class ClientFrame {
 						l = 0;
 					}
 				}
-				while (text.startsWith("setNewRound")) {						
+				if(text.startsWith("setNewRound")) {						
 					RoundOfBettingAmount.setText(text
 							.replace("setNewRound", ""));
 					text = in.readLine();
@@ -346,7 +346,11 @@ public class ClientFrame {
 					text = in.readLine();
 				}
 				while (text.startsWith("setCommon")) {
-					System.out.println("Nowe karty");
+					while(!commoncard[k].getText().equals("")){
+						k++;
+						if (k == 5)
+							k = 0;
+					}
 					commoncard[k].setText(text.replace("setCommon", ""));
 					k++;
 					if (k == 5)

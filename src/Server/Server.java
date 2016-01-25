@@ -7,18 +7,19 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.*;
 
+import GameLogic.Player;
 import GameLogic.Table;
 
 public class Server extends Thread {
 
 	private static ServerSocket serverSocket = null;
 	private static Socket client = null;
-	private static int maxClientsCount = 1;
-	static int small_blind;
-	static int big_blind;
-	static int max_bet;
+	private  int maxClientsCount;
+	 int small_blind;
+	 int big_blind;
+	 
 	public static Table table;
-	public static int bill;
+	 static int bill;
 	static String response;
 	private int count = 0;
 	Wymiana threads[];
@@ -30,7 +31,6 @@ public class Server extends Thread {
 		this.bill = bill;
 		this.small_blind = small_blind;
 		this.big_blind = big_blind;
-		this.max_bet = 0;
 		table=new Table(maxClientsCount, bill, small_blind, big_blind);
 		start();
 
@@ -163,7 +163,8 @@ class Wymiana extends Thread {
 							OutputData[1] = 1;
 							OutputData[2] = 2;
 							OutputData[3] = Integer.parseInt(data.substring(2));
-							if (OutputData[3] > table.getCash(Id)|| table.getMaxBet() != 0) {
+							if(table.active_players!=1)
+							if ((OutputData[3] > table.getCash(Id)|| table.getMaxBet() != 0) ) {
 								OutputData[3] = -2;
 							}
 							break;
@@ -184,9 +185,14 @@ class Wymiana extends Thread {
 							OutputData[1] = 1;
 							OutputData[2] = 2;
 							OutputData[3] = Integer.parseInt(data.substring(2));
-							if (OutputData[3] != table.getMaxBet()
-									- table.getMyBet(Id)
-									|| OutputData[3] > table.getCash(Id)) {
+							int acti=threads.length;
+							for(int i=0;i<threads.length; i++){
+								if(table.checkActive(i)){
+									acti--;
+								}
+							}
+							if(acti>1)
+							if (OutputData[3] != table.getMaxBet()- table.getMyBet(Id)|| OutputData[3] > table.getCash(Id)) {
 								OutputData[3] = -2;
 							}
 							break;
@@ -216,6 +222,7 @@ class Wymiana extends Thread {
 							}
 
 							 table.listen(Output);
+							 threads[Id].out.println("setBill" + table.getCash(Id)+"");
 
 							
 							message = table.getResponse();
@@ -254,9 +261,11 @@ class Wymiana extends Thread {
 								message=message.substring(4);
 								String temp[]=message.split("setc");
 								for(int b=0;b<threads.length;b++){
+									
 								for(int a=0; a<temp.length-1;a++){
 									threads[b].out.println("setCommon"+temp[a]);
 								}
+									
 								}
 								message=temp[temp.length-1];
 								
