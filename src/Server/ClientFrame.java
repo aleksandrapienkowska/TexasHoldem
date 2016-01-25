@@ -28,7 +28,7 @@ import GameLogic.Table;
 import GameLogic.Cards;
 
 public class ClientFrame {
-	private static Socket clientSocket = null;
+
 	private static Socket socket = null;
 	public static PrintWriter out = null;
 	public static BufferedReader in = null;
@@ -40,7 +40,6 @@ public class ClientFrame {
 	int[] cards = new int[2];
 	int[] common = new int[5];
 	static int Id;
-	private Table table;
 	public static JLabel[] CardImages = new JLabel[52];
 	public static String[] Card = new String[52];
 	static JPanel PanelInfo = new JPanel();
@@ -69,9 +68,6 @@ public class ClientFrame {
 	static JPanel PanelMessage = new JPanel();
 	static JTextArea message = new JTextArea(10, 70);
 	static JFrame window = new JFrame("Poker Texas Holdem");
-	private static int bill;
-	private static int maxbet;
-	
 
 	public ClientFrame() {
 
@@ -145,17 +141,16 @@ public class ClientFrame {
 			public void actionPerformed(ActionEvent e) {
 				int k = -1;
 				out.println(Id);
-				
+
 				try {
 					k = Integer.parseInt(Payment.getText());
 					out.println("be" + Payment.getText());
-					
+
 				} catch (Exception z) {
 					message.append("Nieprawidlowa kwota");
 
 				}
 				Payment.setText("");
-				
 
 			}
 
@@ -170,9 +165,9 @@ public class ClientFrame {
 				try {
 
 					k = Integer.parseInt(Payment.getText());
-					
-						out.println("ra" + Payment.getText());
-					
+
+					out.println("ra" + Payment.getText());
+
 				} catch (Exception z) {
 					message.append("Nieprawidlowa kwota");
 				}
@@ -192,8 +187,8 @@ public class ClientFrame {
 				try {
 
 					k = Integer.parseInt(Payment.getText());
-					
-						out.println("ca" + Payment.getText());
+
+					out.println("ca" + Payment.getText());
 				} catch (Exception z) {
 					message.append("Nieprawidlowa kwota");
 				}
@@ -224,10 +219,9 @@ public class ClientFrame {
 				try {
 
 					k = Integer.parseInt(Payment.getText());
-					
-						out.println("al" + Payment.getText());
 
-					
+					out.println("al" + Payment.getText());
+
 				} catch (Exception z) {
 					message.append("Nieprawidlowa kwota");
 				}
@@ -293,30 +287,28 @@ public class ClientFrame {
 				text = in.readLine();
 				int l = 0;
 				int k = 0;
-				if(text.startsWith("setBill")) {
+				if (text.startsWith("setBill")) {
 					BalanceAmount.setText(text.replace("setBill", ""));
 					text = in.readLine();
-					bill = Integer.parseInt(BalanceAmount.getText());
+				
 
 				}
 
-				if(text.startsWith("setPot")) {
+				if (text.startsWith("setPot")) {
 					TotalAmount.setText(text.replace("setPot", ""));
 					text = in.readLine();
-
 				}
-				if(text.startsWith("setMaxBet")) {
+				if (text.startsWith("setMaxBet")) {
 					MaxBetAmount.setText(text.replace("setMaxBet", ""));
-					maxbet = Integer.parseInt(MaxBetAmount.getText());
 					text = in.readLine();
 
 				}
-				if(text.startsWith("setTitle")) {
+				if (text.startsWith("setTitle")) {
 					window.setTitle("Badugi" + text.replace("setTitle", ""));
 					text = in.readLine();
 
 				}
-				while(text.startsWith("setBetsAmount")) {
+				while (text.startsWith("setBetsAmount")) {
 					l++;
 					if (l == 1)
 						BetsAmount.setText("");
@@ -328,7 +320,7 @@ public class ClientFrame {
 						l = 0;
 					}
 				}
-				if(text.startsWith("setNewRound")) {						
+				if (text.startsWith("setNewRound")) {
 					RoundOfBettingAmount.setText(text
 							.replace("setNewRound", ""));
 					text = in.readLine();
@@ -346,7 +338,7 @@ public class ClientFrame {
 					text = in.readLine();
 				}
 				while (text.startsWith("setCommon")) {
-					while(!commoncard[k].getText().equals("")){
+					while (!commoncard[k].getText().equals("")) {
 						k++;
 						if (k == 5)
 							k = 0;
@@ -358,7 +350,6 @@ public class ClientFrame {
 					text = in.readLine();
 
 				}
-				
 
 				broadcast(text.replace("|", "\n"));
 
